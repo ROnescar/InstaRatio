@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaRatio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <section class="hero">
+            <div class="badge">INSTAGRAM DATA ANALYZER</div>
+            <h1>Insta<span>Ratio</span></h1>
+            <p>Upload your Instagram data export to compare your followers and following lists.</p>
+        </section>
+
+        <section class="card">
+            <form method="POST" enctype="multipart/form-data">
+                <label class="dropzone" for="zipFile">
+                    <div class="upload-icon">↑</div>
+                    <h2>Upload Instagram ZIP</h2>
+                    <p>Choose the ZIP file downloaded from Instagram.</p>
+                    <span class="file-name" id="fileName">No file selected</span>
+                    <input id="zipFile" name="instagram_zip" type="file" accept=".zip" required>
+                </label>
+                <button type="submit">Analyze my data</button>
+            </form>
+
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+        </section>
+
+        {% if result %}
+        <section class="stats">
+            <div class="stat">
+                <small>FOLLOWERS</small>
+                <strong>{{ result.followers }}</strong>
+            </div>
+            <div class="stat">
+                <small>FOLLOWING</small>
+                <strong>{{ result.following }}</strong>
+            </div>
+            <div class="stat highlight">
+                <small>NOT FOLLOWING BACK</small>
+                <strong>{{ result.not_following_back|length }}</strong>
+            </div>
+        </section>
+
+        <section class="results-grid">
+            <div class="result-card">
+                <div class="result-header">
+                    <div>
+                        <small>FOLLOWING − FOLLOWERS</small>
+                        <h2>Not following you back</h2>
+                    </div>
+                    <span class="count">{{ result.not_following_back|length }}</span>
+                </div>
+                {% if result.not_following_back %}
+                <ul>
+                    {% for user in result.not_following_back %}
+                    <li>@{{ user }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="empty">Everyone you follow also follows you.</p>
+                {% endif %}
+            </div>
+
+            <div class="result-card">
+                <div class="result-header">
+                    <div>
+                        <small>FOLLOWERS − FOLLOWING</small>
+                        <h2>You don't follow back</h2>
+                    </div>
+                    <span class="count">{{ result.not_following|length }}</span>
+                </div>
+                {% if result.not_following %}
+                <ul>
+                    {% for user in result.not_following %}
+                    <li>@{{ user }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="empty">You follow everyone who follows you.</p>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <footer>
+            <p>InstaRatio processes the uploaded ZIP locally on this server and does not use Instagram login credentials.</p>
+        </footer>
+    </main>
+
+    <script>
+        const input = document.getElementById("zipFile");
+        const fileName = document.getElementById("fileName");
+
+        input.addEventListener("change", () => {
+            fileName.textContent = input.files.length
+                ? input.files[0].name
+                : "No file selected";
+        });
+    </script>
+</body>
+</html>
